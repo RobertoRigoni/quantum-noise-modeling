@@ -85,7 +85,7 @@ def psi_constant_hamiltonian_array(psi_0, times, hamiltonian) :
     return np.array(states)
 
 
-def get_zero_state(state_array):
+def get_zero_state(state_array) :
     zero_probabilities = []
 
     for i in range(len(state_array)) :
@@ -94,7 +94,7 @@ def get_zero_state(state_array):
     
     return zero_probabilities
 
-def get_one_state(state_array):
+def get_one_state(state_array) :
     one_probabilities = []
 
     for i in range(len(state_array)) :
@@ -117,7 +117,7 @@ def get_prob_sums(state_array) :
 psi_of_t = psi_constant_hamiltonian_array(initial_psi, times, constant_paulix_hamiltonian) # Generate array of state vectors that vary with time
 
 
-def plot_constant_hamiltonian_state(times, probabilities_array):
+def plot_constant_hamiltonian_state(times, probabilities_array) :
     plt.plot(times, probabilities_array)
     plt.title("|0> State Probability under Constant Hamiltonian")
     plt.xlabel("Time")
