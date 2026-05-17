@@ -20,11 +20,12 @@ pauli_z = np.array([[1, 0], [0, -1]], dtype=complex)
 # Define Hadamard gate
 hadamard = (1/np.sqrt(2)) * np.array([[1, 1], 
                                       [1, -1]], dtype=complex)
-print("Hadamard\n", hadamard)
 
 
 # ---------------------
 # Expectation values and state probabilities
+# ---------------------
+
 def compute_prob_zero(state) :
     return np.abs(np.power(state[0], 2))
 
@@ -54,25 +55,9 @@ def compute_expectation_hadamard(state) :
     return np.real((np.vdot(state, hadamard @ state)))
 
 
-#print(compute_expectation_x(zero))
-#print(compute_expectation_y(zero))
-#print(compute_expectation_z(zero))
-#print(compute_expectation_hadamard(zero))
-
 # ---------------------
 # Evolving a state over time
-
-qubit_freq = 4.5e9 # Typically between 3 and 6 GHz
-
-omega = 2 * np.pi * 50e6 # Typical Rabi Frequency
-
-initial_psi = zero # |0>
-
-constant_pauliz_hamiltonian = omega*0.5*pauli_z
-
-constant_paulix_hamiltonian = omega*0.5*pauli_x
-
-times = np.linspace(0, 100e-9, 1000)
+# ---------------------
 
 def psi_constant_hamiltonian_array(psi_0, times, hamiltonian) : 
 
@@ -114,22 +99,40 @@ def get_prob_sums(state_array) :
     return sums
 
 
-psi_of_t = psi_constant_hamiltonian_array(initial_psi, times, constant_paulix_hamiltonian) # Generate array of state vectors that vary with time
-
-
-def plot_constant_hamiltonian_state(times, probabilities_array) :
+def plot_constant_hamiltonian_zero_state(times, probabilities_array) :
     plt.plot(times, probabilities_array)
     plt.title("|0> State Probability under Constant Hamiltonian")
     plt.xlabel("Time")
-    plt.ylabel("|0> State Probability")
+    plt.ylabel("State Probability")
     plt.show()
 
+def plot_constant_hamiltonian_one_state(times, probabilities_array) :
+    plt.plot(times, probabilities_array)
+    plt.title("|1> State Probability under Constant Hamiltonian")
+    plt.xlabel("Time")
+    plt.ylabel("State Probability")
+    plt.show()
 
-print(np.allclose(get_prob_sums(psi_of_t), 1.0)) # Checks normalization of probabilities by ensuring sums of |0> and |1> probabilities always add to 1.
-#plot_constant_hamiltonian_state(times, get_zero_state(psi_of_t))
-plot_constant_hamiltonian_state(times, get_one_state(psi_of_t))
-#plot_constant_hamiltonian_state(times, get_prob_sums(psi_of_t))
+qubit_freq = 4.5e9 # Typically between 3 and 6 GHz
 
+omega = 2 * np.pi * 50e6 # Typical Rabi Frequency
 
+initial_psi = zero # |0>
 
+constant_pauliz_hamiltonian = qubit_freq*0.5*pauli_z # Ensure that graphs are accurate when using pauli-z H
 
+constant_paulix_hamiltonian = omega*0.5*pauli_x
+
+times = np.linspace(0, 100e-9, 1000)
+
+psi_of_t_vector = psi_constant_hamiltonian_array(initial_psi, times, constant_paulix_hamiltonian) # Generate array of state vectors that vary with time
+
+psi_of_t_zero_probs = get_zero_state(psi_of_t_vector)
+
+psi_of_t_one_probs = get_one_state(psi_of_t_vector)
+
+print(np.allclose(get_prob_sums(psi_of_t_vector), 1.0)) # Checks normalization of probabilities by ensuring sums of |0> and |1> probabilities always add to 1.
+
+plot_constant_hamiltonian_zero_state(times, psi_of_t_zero_probs)
+
+plot_constant_hamiltonian_one_state(times, psi_of_t_one_probs)
