@@ -32,16 +32,6 @@ def compute_prob_zero(state) :
 def compute_prob_one(state) :
     return np.abs(np.power(state[1], 2))
 
-def normalize(state) :
-    return state * (1 / np.linalg.norm(state))
-
-def check_unitary(matrix) :
-    dim = len(matrix)
-    return np.allclose(matrix.conj().T @ matrix, np.eye(dim, dtype=complex))
-
-def tensor_product(a, b) :
-    return np.kron(a, b)
-
 def compute_expectation_x(state) :
     return np.real(np.vdot(state, pauli_x @ state))
 
@@ -54,23 +44,17 @@ def compute_expectation_z(state) :
 def compute_expectation_hadamard(state) :
     return np.real((np.vdot(state, hadamard @ state)))
 
+def normalize(state) :
+    return state * (1 / np.linalg.norm(state))
 
-# ---------------------
-# Evolving a state over time
-# ---------------------
+def check_unitary(matrix) :
+    dim = len(matrix)
+    return np.allclose(matrix.conj().T @ matrix, np.eye(dim, dtype=complex))
 
-def psi_constant_hamiltonian_array(psi_0, times, hamiltonian) : 
+def tensor_product(a, b) :
+    return np.kron(a, b)
 
-    states = []
-
-    for t in times :
-        hamil_matrix_exp = scipy.linalg.expm(-1j*t*hamiltonian)
-        states.append(hamil_matrix_exp @ psi_0)
-    
-    return np.array(states)
-
-
-def get_zero_state(state_array) :
+def get_zero_probs(state_array) :
     zero_probabilities = []
 
     for i in range(len(state_array)) :
@@ -79,7 +63,7 @@ def get_zero_state(state_array) :
     
     return zero_probabilities
 
-def get_one_state(state_array) :
+def get_one_probs(state_array) :
     one_probabilities = []
 
     for i in range(len(state_array)) :
@@ -90,13 +74,23 @@ def get_one_state(state_array) :
 
 def get_prob_sums(state_array) :
     sums = []
-    zero_probs = get_zero_state(state_array)
-    one_probs = get_one_state(state_array)
+    zero_probs = get_zero_probs(state_array)
+    one_probs = get_one_probs(state_array)
 
     for i in range(len(state_array)) :
         sums.append(zero_probs[i] + one_probs[i])
 
     return sums
+
+def psi_constant_hamiltonian_array(psi_0, times, hamiltonian) : 
+
+    states = []
+
+    for t in times :
+        hamil_matrix_exp = scipy.linalg.expm(-1j*t*hamiltonian)
+        states.append(hamil_matrix_exp @ psi_0)
+    
+    return np.array(states)
 
 
 def plot_constant_hamiltonian_zero_state(times, probabilities_array) :
@@ -112,27 +106,3 @@ def plot_constant_hamiltonian_one_state(times, probabilities_array) :
     plt.xlabel("Time")
     plt.ylabel("State Probability")
     plt.show()
-
-qubit_freq = 4.5e9 # Typically between 3 and 6 GHz
-
-omega = 2 * np.pi * 50e6 # Typical Rabi Frequency
-
-initial_psi = zero # |0>
-
-constant_pauliz_hamiltonian = qubit_freq*0.5*pauli_z # Ensure that graphs are accurate when using pauli-z H
-
-constant_paulix_hamiltonian = omega*0.5*pauli_x
-
-times = np.linspace(0, 100e-9, 1000)
-
-psi_of_t_vector = psi_constant_hamiltonian_array(initial_psi, times, constant_paulix_hamiltonian) # Generate array of state vectors that vary with time
-
-psi_of_t_zero_probs = get_zero_state(psi_of_t_vector)
-
-psi_of_t_one_probs = get_one_state(psi_of_t_vector)
-
-print(np.allclose(get_prob_sums(psi_of_t_vector), 1.0)) # Checks normalization of probabilities by ensuring sums of |0> and |1> probabilities always add to 1.
-
-plot_constant_hamiltonian_zero_state(times, psi_of_t_zero_probs)
-
-plot_constant_hamiltonian_one_state(times, psi_of_t_one_probs)
